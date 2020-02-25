@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { axiosWithAuth } from "../utils/axiosWithAuth";
-// import { axiosWithAuth } from '../../path/to/axiosAuth.js';
 const initialColor = {
   color: "",
   code: { hex: "" }
 };
 
-const ColorList = ({ colors, updateColors }) => {
+const ColorList = ({ props, colors, updateColors }) => {
   console.log(colors);
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
@@ -26,23 +25,19 @@ const ColorList = ({ colors, updateColors }) => {
     console.log("Saving edits to color", colorToEdit);
 
     axiosWithAuth()
-    // axios()
-    .put("colors/" + colorToEdit.id, colorToEdit)
+    // .put(`http://localhost:5000/api/colors/${colorToEdit.id}`, colorToEdit);
+    // props.history.push("/bubblepage");
+
+    // .put("colors/" + colorToEdit.id, colorToEdit)
+    .put(`http://localhost:5000/api/colors/${colorToEdit.id}`, colorToEdit)
     .then (response => {
       console.log("Color edited:", response);
 
-      // rebuild color array in same order as before
-      let updatedColors = [];
-
-      for (let i = 0; i < colors.length; i++)
-      {
-        if (colors[i].id === colorToEdit.id)
-          { updatedColors = [...updatedColors, colorToEdit]; }
-        else
-          { updatedColors = [...updatedColors, colors[i]]; }
-      }
-
-      updateColors(updatedColors);
+      axiosWithAuth()
+          .get(`http://localhost:5000/api/colors`)
+          .then(res => updateColors(res.data))
+          .catch(err => console.log(err))
+        setEditing(false);
 
     })
     .catch (error => {
@@ -54,10 +49,13 @@ const ColorList = ({ colors, updateColors }) => {
   const deleteColor = color => {
     // make a delete request to delete this color
     console.log("Deleting color", color);
+    console.log("Deleting color id: ", color.id);
 
     axiosWithAuth()
-    // axios()
-    .delete("colors/" + color.id)
+    // .delete(`http://localhost:5000/api/colors/${color.id}`);
+    // props.history.push("/bubblePage");
+    // .delete("colors/" + color.id)
+    .delete(`http://localhost:5000/api/colors/${color.id}`)
     .then (response => {
       console.log("Color deleted:", response);
 
@@ -66,7 +64,7 @@ const ColorList = ({ colors, updateColors }) => {
 
     })
     .catch (error => {
-      console.log("Couldn't delete color:", error);
+      console.log("Could not delete color:", error);
     })
   };
 
